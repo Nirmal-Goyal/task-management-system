@@ -101,3 +101,32 @@ export const updateTask = async(req: AuthRequest, res: Response) => {
         task
     })
 }
+
+export const deleteTask = async (req: AuthRequest, res: Response) => {
+    const id = req.params.id as string
+
+    if(!mongoose.Types.ObjectId.isValid(id)){
+        return res.status(404).json({
+            message: "Task not found"
+        })
+    }
+
+    const task = await Task.findById(id)
+    if(!task){
+        return res.status(404).json({
+            message: "Task not found"
+        })
+    }
+
+    if(task.userId.toString()!==req.userId){
+        return res.status(403).json({
+            message: "Forbidden"
+        })
+    }
+
+    await task.deleteOne();
+
+    res.json({
+        message: "Task deleted successfully"
+    })
+}
